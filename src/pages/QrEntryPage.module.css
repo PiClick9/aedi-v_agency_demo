@@ -1,64 +1,108 @@
-/* Slide 16:9 - 36 — QR entry screen (Figma node 3891:118010) */
+/* Slide 16:9 - 36 — QR entry screen (Figma node 3891:118010)
+ *
+ * Measured against the 1920x1080 artboard:
+ *   logo instance   x=831  y=296  259 x 60   (symbol 60x60 + gap 18 + wordmark 181x46.41)
+ *   QR card         x=850  y=430  220 x 220  (padding 7.608, radius 6.34)
+ *   notice text     x=797  y=694  327 x 54   (18px / 1.5, two lines)
+ * Vertical gaps: logo -> card 74, card -> notice 44.
+ *
+ * Every length below is expressed as `Npx * var(--scale)` so the whole screen
+ * keeps its exact proportions while fitting narrow and short viewports.
+ */
 
 .page {
+  /* The artwork is 259px at its widest and 452px tall, so it renders at exact
+     Figma sizes on anything roomier than a small phone. It steps down only when
+     the viewport is genuinely too narrow or too short to hold it.
+     (Discrete steps, not a fluid clamp(): a fluid ratio would need to divide a
+     length by a length, which is not a computable number in CSS.) */
+  --scale: 1;
+
   min-height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 74px;
-  padding: 48px 24px;
+  padding: calc(32px * var(--scale)) 16px;
   background: var(--color-surface-primary-subtlest);
+}
+
+/* The group spans y 296..748, so its centre (522) sits 18px above the card's
+   centre (540). Lifting the group by that 18px puts the QR card back on the
+   artboard's exact vertical centre, as in the design. */
+.group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateY(calc(-18px * var(--scale)));
 }
 
 .logo {
   display: flex;
-  align-items: flex-start;
-  gap: 18px;
-  height: 60px;
+  align-items: flex-start; /* wordmark is top-aligned against the 60px symbol */
+  gap: calc(18px * var(--scale));
+  width: calc(259px * var(--scale));
+  height: calc(60px * var(--scale));
 }
 
+/* Both SVGs are exported with preserveAspectRatio="none", so they stretch to
+   whatever box they are given — width AND height must both be pinned. */
 .logoSymbol {
-  height: 100%;
-  aspect-ratio: 1;
+  width: calc(60px * var(--scale));
+  height: calc(60px * var(--scale));
   border-radius: 100px;
   overflow: hidden;
 }
 
 .logoWordmark {
-  height: 100%;
-  width: auto;
+  width: calc(181px * var(--scale));
+  height: calc(46.41px * var(--scale));
 }
 
-/* The QR itself is intentionally omitted for the demo — this is the card that
-   frames it, kept at the Figma dimensions so the layout matches the design. */
 .qrCard {
+  margin-top: calc(74px * var(--scale));
   display: flex;
   align-items: center;
-  padding: 7.608px;
-  border-radius: 6.34px;
+  padding: calc(7.608px * var(--scale));
+  border-radius: calc(6.34px * var(--scale));
   background: var(--color-bg-base);
-  box-shadow: 0 0 10.144px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 calc(10.144px * var(--scale)) 0 rgba(0, 0, 0, 0.1);
 }
 
+/* The QR image itself is intentionally omitted for the demo — this placeholder
+   holds the exact footprint the image occupies in the design. */
 .qrSlot {
-  width: 204.784px;
-  height: 204.784px;
+  width: calc(204.784px * var(--scale));
+  height: calc(204.784px * var(--scale));
   display: grid;
   place-items: center;
   border: 1px dashed rgba(26, 26, 26, 0.2);
-  border-radius: 4px;
+  border-radius: calc(4px * var(--scale));
   color: rgba(26, 26, 26, 0.4);
-  font-size: 13px;
+  font-size: calc(13px * var(--scale));
   font-weight: var(--font-weight-medium);
   letter-spacing: 0.02em;
 }
 
 .notice {
-  margin: -30px 0 0;
+  margin: calc(44px * var(--scale)) 0 0;
+  max-width: calc(327px * var(--scale));
   text-align: center;
-  font-size: var(--font-size-body-xlarge);
+  font-size: calc(var(--font-size-body-xlarge) * var(--scale));
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-body);
   color: var(--color-text-base);
+}
+
+/* Responsive steps — 259px wide / 452px tall artwork plus padding. */
+@media (max-width: 480px), (max-height: 700px) {
+  .page {
+    --scale: 0.85;
+  }
+}
+
+@media (max-width: 380px), (max-height: 600px) {
+  .page {
+    --scale: 0.72;
+  }
 }

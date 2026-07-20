@@ -10,20 +10,22 @@ import styles from './QrEntryPage.module.css'
 export default function QrEntryPage() {
   return (
     <main className={styles.page}>
-      <div className={styles.logo}>
-        <img className={styles.logoSymbol} src={symbol} alt="" />
-        <img className={styles.logoWordmark} src={wordmark} alt="aedi-v" />
-      </div>
+      <div className={styles.group}>
+        <div className={styles.logo}>
+          <img className={styles.logoSymbol} src={symbol} alt="" />
+          <img className={styles.logoWordmark} src={wordmark} alt="aedi-v" />
+        </div>
 
-      <div className={styles.qrCard}>
-        <div className={styles.qrSlot}>QR</div>
-      </div>
+        <div className={styles.qrCard}>
+          <div className={styles.qrSlot}>QR</div>
+        </div>
 
-      <p className={styles.notice}>
-        This code expires at MIDNIGHT!
-        <br />
-        This code is valid only during this event!
-      </p>
+        <p className={styles.notice}>
+          This code expires at MIDNIGHT!
+          <br />
+          This code is valid only during this event!
+        </p>
+      </div>
     </main>
   )
 }
