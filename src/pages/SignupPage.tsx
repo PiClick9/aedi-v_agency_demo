@@ -1,22 +1,29 @@
-import type { FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
+import SuccessModal from '../components/SuccessModal'
 import symbol from '../assets/aedi-v-symbol.svg'
 import wordmark from '../assets/aedi-v-wordmark.svg'
 import styles from './SignupPage.module.css'
 
+// Position is optional — the design's filled state shows it empty with the
+// success dialog open.
 const FIELDS = [
-  { id: 'company', label: 'Company Name', placeholder: 'Company Name', autoComplete: 'organization' },
-  { id: 'name', label: 'Name', placeholder: 'Full Name', autoComplete: 'name' },
-  { id: 'email', label: 'Email', placeholder: 'Email Address', type: 'email', autoComplete: 'email' },
-  { id: 'position', label: 'Position', placeholder: 'Position', autoComplete: 'organization-title' },
+  { id: 'company', label: 'Company Name', placeholder: 'Company Name', autoComplete: 'organization', required: true },
+  { id: 'name', label: 'Name', placeholder: 'Full Name', autoComplete: 'name', required: true },
+  { id: 'email', label: 'Email', placeholder: 'Email Address', type: 'email', autoComplete: 'email', required: true },
+  { id: 'position', label: 'Position', placeholder: 'Position', autoComplete: 'organization-title', required: false },
 ] as const
 
 /**
  * "가입하기" — AGENCY PILOT signup form (Figma node 3910:20692).
- * The entry screen of the agency pilot flow.
+ * The entry screen of the agency pilot flow. Saving opens the success
+ * dialog from node 3910:22043.
  */
 export default function SignupPage() {
+  const [saved, setSaved] = useState(false)
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    setSaved(true)
   }
 
   return (
@@ -43,6 +50,7 @@ export default function SignupPage() {
                   type={'type' in field ? field.type : 'text'}
                   placeholder={field.placeholder}
                   autoComplete={field.autoComplete}
+                  required={field.required}
                 />
               </div>
             ))}
@@ -53,6 +61,8 @@ export default function SignupPage() {
           </button>
         </form>
       </div>
+
+      {saved && <SuccessModal title="Saved successfully" onClose={() => setSaved(false)} />}
     </main>
   )
 }

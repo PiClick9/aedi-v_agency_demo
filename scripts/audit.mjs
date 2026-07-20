@@ -98,6 +98,41 @@ const probe = () => {
       padX: cs.paddingLeft,
       shadow: cs.boxShadow,
     },
+    scrim: box(q('scrim')),
+    scrimStyle: (() => {
+      const el = q('scrim')
+      if (!el) return null
+      const s = getComputedStyle(el)
+      return { bg: s.backgroundColor, position: s.position }
+    })(),
+    modal: box(q('modal')),
+    modalStyle: (() => {
+      const el = q('modal')
+      if (!el) return null
+      const s = getComputedStyle(el)
+      return {
+        bg: s.backgroundColor,
+        radius: s.borderTopLeftRadius,
+        padY: s.paddingTop,
+        padX: s.paddingLeft,
+        shadow: s.boxShadow,
+      }
+    })(),
+    // Scoped: the signup card also has a `title`, and it comes first in the DOM.
+    modalTitle: box(q('modal')?.querySelector('[class*="title"]')),
+    modalTitleType: type(q('modal')?.querySelector('[class*="title"]')),
+    confirm: box(q('confirm')),
+    confirmType: type(q('confirm')),
+    confirmStyle: (() => {
+      const el = q('confirm')
+      if (!el) return null
+      const s = getComputedStyle(el)
+      return { bg: s.backgroundColor, radius: s.borderTopLeftRadius }
+    })(),
+    dialogRole: q('modal')?.getAttribute('role') ?? null,
+    dialogModal: q('modal')?.getAttribute('aria-modal') ?? null,
+    focusedIsConfirm: document.activeElement === q('confirm'),
+    bodyOverflow: document.body.style.overflow,
     placeholderColor: (() => {
       // Placeholder colour is not exposed on computed style; read the rule.
       for (const sheet of document.styleSheets) {
@@ -215,6 +250,69 @@ const qrSpec = (m, vp, scale) => {
   eq('page bg', m.pageBg, 'rgb(247, 248, 250)')
 }
 
+/** "완료" success dialog — Figma node 3910:22043 / modal 3910:22086. */
+const modalSpec = (m, vp) => {
+  const cx = (b) => b.x + b.w / 2
+  const cy = (b) => b.y + b.h / 2
+
+  console.log('-- scrim')
+  ok('scrim present', !!m.scrim)
+  eq('scrim colour', m.scrimStyle.bg, 'rgba(0, 0, 0, 0.5)')
+  eq('scrim fixed', m.scrimStyle.position, 'fixed')
+  near('scrim w', m.scrim.w, vp.width)
+  near('scrim h', m.scrim.h, vp.height)
+
+  console.log('-- modal')
+  near('modal w', m.modal.w, 390)
+  near('modal h', m.modal.h, 202)
+  near('modal centre x', cx(m.modal), vp.width / 2, 1)
+  near('modal centre y', cy(m.modal), vp.height / 2, 1)
+  near('modal radius', parseFloat(m.modalStyle.radius), 10)
+  near('modal pad-y', parseFloat(m.modalStyle.padY), 40)
+  near('modal pad-x', parseFloat(m.modalStyle.padX), 78)
+  eq('modal bg', m.modalStyle.bg, 'rgb(255, 255, 255)')
+  eq('modal shadow', m.modalStyle.shadow, 'rgba(0, 0, 0, 0.1) 0px 0px 20.138px 0px')
+
+  console.log('-- title')
+  near('title w', m.modalTitle.w, 234)
+  near('title h', m.modalTitle.h, 33.6, 1)
+  near('title font-size', m.modalTitleType.size, 24)
+  near('title line-height', m.modalTitleType.lh, 33.6, 1)
+  eq('title weight', m.modalTitleType.weight, '700')
+  eq('title colour', m.modalTitleType.color, 'rgb(26, 26, 26)')
+  near('title y (from modal top)', m.modalTitle.y - m.modal.y, 40)
+  near('title centre x', cx(m.modalTitle), vp.width / 2, 1)
+
+  console.log('-- OK button')
+  near('button w', m.confirm.w, 82)
+  near('button h', m.confirm.h, 40)
+  near('button y (from modal top)', m.confirm.y - m.modal.y, 122)
+  near('title->button gap', m.confirm.y - (m.modalTitle.y + m.modalTitle.h), 48, 1)
+  near('button centre x', cx(m.confirm), vp.width / 2, 1)
+  near('button font-size', m.confirmType.size, 14)
+  eq('button weight', m.confirmType.weight, '500')
+  eq('button colour', m.confirmType.color, 'rgb(255, 255, 255)')
+  eq('button bg', m.confirmStyle.bg, 'rgb(26, 26, 26)')
+
+  console.log('-- behaviour')
+  eq('role', m.dialogRole, 'dialog')
+  eq('aria-modal', m.dialogModal, 'true')
+  ok('OK button focused on open', m.focusedIsConfirm)
+  eq('body scroll locked', m.bodyOverflow, 'hidden')
+}
+
+/** Modal invariants after responsive reflow. */
+const modalResponsiveSpec = (m, vp) => {
+  const cx = (b) => b.x + b.w / 2
+  ok('no horizontal overflow', m.scrollW <= m.clientW, `${m.scrollW} <= ${m.clientW}`)
+  ok('modal within viewport', m.modal.x >= 0 && m.modal.x + m.modal.w <= vp.width, `x=${m.modal.x.toFixed(1)} w=${m.modal.w.toFixed(1)}`)
+  near('modal centre x', cx(m.modal), vp.width / 2, 1)
+  near('modal centre y', m.modal.y + m.modal.h / 2, vp.height / 2, 1)
+  ok('title >= 18px', m.modalTitleType.size >= 18, `${m.modalTitleType.size}px`)
+  ok('button tap target >= 40px', m.confirm.h >= 40, `${m.confirm.h}px`)
+  eq('scrim colour', m.scrimStyle.bg, 'rgba(0, 0, 0, 0.5)')
+}
+
 /** Invariants that must hold after any responsive reflow. */
 const responsiveSpec = (m, vp) => {
   const cx = (b) => b.x + b.w / 2
@@ -245,9 +343,30 @@ const RUNS = [
   { route: '/', name: 'signup-390x844', width: 390, height: 844, spec: responsiveSpec },
   { route: '/', name: 'signup-360x640', width: 360, height: 640, spec: responsiveSpec },
   { route: '/', name: 'signup-320x568', width: 320, height: 568, spec: responsiveSpec },
+  { route: '/', name: 'modal-1920x1080', width: 1920, height: 1080, submit: true, spec: modalSpec },
+  { route: '/', name: 'modal-1440x900', width: 1440, height: 900, submit: true, spec: modalSpec },
+  { route: '/', name: 'modal-768x1024', width: 768, height: 1024, submit: true, spec: modalSpec },
+  { route: '/', name: 'modal-390x844', width: 390, height: 844, submit: true, spec: modalResponsiveSpec },
+  { route: '/', name: 'modal-320x568', width: 320, height: 568, submit: true, spec: modalResponsiveSpec },
   { route: '/qr', name: 'qr-1920x1080', width: 1920, height: 1080, spec: (m, vp) => qrSpec(m, vp, 1) },
   { route: '/qr', name: 'qr-390x844', width: 390, height: 844, spec: (m, vp) => qrSpec(m, vp, 0.85) },
 ]
+
+/** Fill the form and save, asserting the dialog is gated on valid input. */
+const openModal = async (page) => {
+  const modal = '[class*="modal"]'
+  const save = '[class*="submit"]'
+
+  await page.click(save)
+  ok('modal gated on required fields', (await page.locator(modal).count()) === 0)
+
+  await page.fill('#company', 'sjcompany')
+  await page.fill('#name', 'Leesujin')
+  await page.fill('#email', 'rnd@aisum.com')
+  await page.click(save)
+  await page.waitForSelector(modal, { timeout: 3000 })
+  ok('modal opens on save', true)
+}
 
 const browser = await chromium.launch()
 
@@ -256,11 +375,26 @@ for (const run of RUNS) {
   await page.goto(`${BASE}/#${run.route}`, { waitUntil: 'networkidle' })
   await page.evaluate(() => document.fonts.ready)
   await page.waitForTimeout(300)
-  if (OUT) await page.screenshot({ path: `${OUT}/${run.name}.png`, fullPage: true })
+
+  console.log(`\n===== ${run.name} =====`)
+  if (run.submit) await openModal(page)
+
+  if (OUT) await page.screenshot({ path: `${OUT}/${run.name}.png`, fullPage: !run.submit })
 
   const m = await page.evaluate(probe)
-  console.log(`\n===== ${run.name} =====`)
   run.spec(m, run)
+
+  if (run.submit) {
+    // The dialog must dismiss and hand scrolling back.
+    await page.click('[class*="confirm"]')
+    await page.waitForTimeout(150)
+    const closed = await page.evaluate(() => ({
+      gone: !document.querySelector('[class*="modal"]'),
+      overflow: document.body.style.overflow,
+    }))
+    ok('OK closes the dialog', closed.gone)
+    ok('body scroll restored', closed.overflow !== 'hidden', `overflow="${closed.overflow}"`)
+  }
 
   const oY = m.scrollH > m.clientH
   console.log(`${oY ? 'note' : 'OK  '} vertical scroll: ${oY ? `${m.scrollH} > ${m.clientH}` : 'none'}`)

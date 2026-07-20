@@ -1,0 +1,81 @@
+/* "완료" success dialog (Figma node 3910:22043, modal 3910:22086)
+ *
+ * Measured on the 1920x1080 artboard:
+ *   scrim   0,0 1920 x 1080   rgba(0,0,0,0.5)
+ *   modal   x=765 y=439  390 x 202   (centred: 765+195=960, 439+101=540)
+ *           padding 40/78, gap 48, radius 10, shadow 0 0 20.138px rgba(0,0,0,.1)
+ *   ├ title x=78 y=40   234 x 34     (24px bold, 1.4)
+ *   └ OK    x=154 y=122 82 x 40      (radius 999)
+ * 390 - 78*2 = 234; 40 + 34 + 48 + 40 + 40 = 202.
+ */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal {
+  width: 390px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+  padding: 40px 78px;
+  background: var(--color-surface-base);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 0 20.138px 0 rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  margin: 0;
+  width: 100%;
+  font-size: 24px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.4;
+  color: var(--color-text-base);
+  text-align: center;
+}
+
+.confirm {
+  width: 82px;
+  height: var(--height-40);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1);
+  padding: 0 var(--spacing-4);
+  font-family: inherit;
+  font-size: var(--font-size-body-medium);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-body);
+  color: var(--color-text-inverse);
+  background: var(--color-btn-primary-fill);
+  border: none;
+  border-radius: var(--radius-circle);
+  cursor: pointer;
+}
+
+.confirm:hover {
+  opacity: 0.88;
+}
+
+/* The 78px side padding leaves nothing on a narrow phone, so the modal goes
+   fluid and the chrome tightens below 460px. */
+@media (max-width: 459px) {
+  .modal {
+    width: 100%;
+    max-width: 390px;
+    gap: 32px;
+    padding: 32px 24px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+}
