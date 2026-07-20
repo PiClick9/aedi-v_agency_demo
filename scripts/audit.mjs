@@ -348,9 +348,64 @@ const RUNS = [
   { route: '/', name: 'modal-768x1024', width: 768, height: 1024, submit: true, spec: modalSpec },
   { route: '/', name: 'modal-390x844', width: 390, height: 844, submit: true, spec: modalResponsiveSpec },
   { route: '/', name: 'modal-320x568', width: 320, height: 568, submit: true, spec: modalResponsiveSpec },
+  { route: '/', name: 'email-validation', width: 1440, height: 900, email: true, spec: () => {} },
   { route: '/qr', name: 'qr-1920x1080', width: 1920, height: 1080, spec: (m, vp) => qrSpec(m, vp, 1) },
   { route: '/qr', name: 'qr-390x844', width: 390, height: 844, spec: (m, vp) => qrSpec(m, vp, 0.85) },
 ]
+
+/**
+ * Email format gate. `type="email"` alone accepts a dotless domain, so these
+ * pin down where the boundary actually sits.
+ */
+const EMAIL_CASES = [
+  ['rnd@aisum.com', true],
+  ['a@b.co', true],
+  ['first.last@sub.example.co.kr', true],
+  ['a+tag@example.com', true],
+  ['', false],
+  ['abc', false],
+  ['abc@', false],
+  ['@example.com', false],
+  ['a@b', false], // dotless domain — accepted by type="email"
+  ['a@b.c', false], // single-character TLD
+  ['a@b..com', false],
+  ['a b@c.com', false],
+  ['a@@b.com', false],
+]
+
+const auditEmail = async (page) => {
+  const modal = '[class*="modal"]'
+  for (const [value, shouldPass] of EMAIL_CASES) {
+    await page.fill('#company', 'sjcompany')
+    await page.fill('#name', 'Leesujin')
+    await page.fill('#email', value)
+    await page.click('[class*="submit"]')
+    await page.waitForTimeout(80)
+    const opened = (await page.locator(modal).count()) > 0
+    ok(
+      `email ${JSON.stringify(value) || '""'} -> ${shouldPass ? 'accepted' : 'rejected'}`,
+      opened === shouldPass,
+      opened === shouldPass ? '' : `modal ${opened ? 'opened' : 'did not open'}`,
+    )
+    if (opened) {
+      await page.click('[class*="confirm"]')
+      await page.waitForTimeout(80)
+    }
+  }
+
+  // The custom message must not outlive the value that caused it.
+  await page.fill('#email', 'a@b')
+  await page.click('[class*="submit"]')
+  await page.waitForTimeout(80)
+  await page.fill('#email', 'rnd@aisum.com')
+  const cleared = await page.evaluate(() => document.querySelector('#email').validationMessage)
+  ok('custom message cleared on edit', cleared === '', `"${cleared}"`)
+  await page.click('[class*="submit"]')
+  await page.waitForSelector(modal, { timeout: 3000 })
+  ok('valid email after a rejected one still saves', true)
+  await page.click('[class*="confirm"]')
+  await page.waitForTimeout(80)
+}
 
 /** Fill the form and save, asserting the dialog is gated on valid input. */
 const openModal = async (page) => {
@@ -377,6 +432,7 @@ for (const run of RUNS) {
   await page.waitForTimeout(300)
 
   console.log(`\n===== ${run.name} =====`)
+  if (run.email) await auditEmail(page)
   if (run.submit) await openModal(page)
 
   if (OUT) await page.screenshot({ path: `${OUT}/${run.name}.png`, fullPage: !run.submit })
