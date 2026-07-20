@@ -98,6 +98,33 @@ const probe = () => {
       padX: cs.paddingLeft,
       shadow: cs.boxShadow,
     },
+    // INCLUDES screen
+    body: box(q('body')),
+    row: box(q('row')),
+    linkField: box(q('link')),
+    linkType: type(q('link')),
+    linkStyle: (() => {
+      const el = q('link')
+      if (!el) return null
+      const s = getComputedStyle(el)
+      return { bg: s.backgroundColor, borderColor: s.borderTopColor, radius: s.borderTopLeftRadius, padX: s.paddingLeft, readOnly: el.readOnly, value: el.value }
+    })(),
+    copy: box(q('copy')),
+    copyType: type(q('copy')),
+    copyStyle: (() => {
+      const el = q('copy')
+      if (!el) return null
+      const s = getComputedStyle(el)
+      return { bg: s.backgroundColor, border: s.borderTopWidth, borderColor: s.borderTopColor, radius: s.borderTopLeftRadius, padX: s.paddingLeft }
+    })(),
+    copyIcon: box(q('copyIcon')),
+    list: box(q('list')),
+    listType: type(q('list')),
+    listItems: [...document.querySelectorAll('[class*="list"] > li')].map((el) => ({
+      ...box(el),
+      marginLeft: getComputedStyle(el).marginLeft,
+      text: el.textContent,
+    })),
     scrim: box(q('scrim')),
     scrimStyle: (() => {
       const el = q('scrim')
@@ -163,13 +190,8 @@ const signupSpec = (m, vp) => {
   const cx = (b) => b.x + b.w / 2
   const mid = vp.width / 2
 
-  console.log('-- logo')
-  near('logo w', m.logo.w, 259)
-  near('logo h', m.logo.h, 60)
-  near('symbol', m.symbol.w, 60)
-  near('symbol h', m.symbol.h, 60)
-  near('wordmark w', m.wordmark.w, 181)
-  near('wordmark h', m.wordmark.h, 46.41)
+  console.log('-- layout')
+  layoutSpec(m)
   near('logo centre x', cx(m.logo), mid, 1)
 
   console.log('-- card')
@@ -181,7 +203,6 @@ const signupSpec = (m, vp) => {
   near('card pad-x', parseFloat(m.cardStyle.padX), 36)
   eq('card bg', m.cardStyle.bg, 'rgb(255, 255, 255)')
   eq('card shadow', m.cardStyle.shadow, 'rgba(0, 0, 0, 0.1) 0px 0px 16px 0px')
-  near('gap logo->card', m.card.y - (m.logo.y + m.logo.h), 48)
 
   console.log('-- title')
   near('title h', m.title.h, 42, 1)
@@ -247,6 +268,114 @@ const qrSpec = (m, vp, scale) => {
   near('card h', m.card.h, 220 * s)
   near('card centre x', cx(m.card), mid, 1)
   near('card centre y', m.card.y + m.card.h / 2, vp.height / 2, 1.5)
+  eq('page bg', m.pageBg, 'rgb(247, 248, 250)')
+}
+
+/**
+ * Both pilot artboards put the logo at y=144 and the card at y=252 regardless
+ * of card height, so the layout is top-anchored rather than centred.
+ */
+const layoutSpec = (m) => {
+  near('logo y', m.logo.y, 144)
+  near('card y', m.card.y, 252)
+  near('logo w', m.logo.w, 259)
+  near('logo h', m.logo.h, 60)
+  near('symbol', m.symbol.w, 60)
+  near('wordmark w', m.wordmark.w, 181)
+  near('wordmark h', m.wordmark.h, 46.41)
+  near('gap logo->card', m.card.y - (m.logo.y + m.logo.h), 48)
+}
+
+/** "링크 복사" — INCLUDES screen, Figma node 3910:20702 / card 3910:20703. */
+const includesSpec = (m, vp) => {
+  const cx = (b) => b.x + b.w / 2
+  const mid = vp.width / 2
+
+  console.log('-- layout')
+  layoutSpec(m)
+  near('logo centre x', cx(m.logo), mid, 1)
+
+  console.log('-- card')
+  near('card w', m.card.w, 667)
+  near('card h', m.card.h, 390)
+  near('card centre x', cx(m.card), mid, 1)
+  near('card radius', parseFloat(m.cardStyle.radius), 10)
+  near('card pad-y', parseFloat(m.cardStyle.padY), 44)
+  near('card pad-x', parseFloat(m.cardStyle.padX), 44)
+  eq('card bg', m.cardStyle.bg, 'rgb(255, 255, 255)')
+  eq('card shadow', m.cardStyle.shadow, 'rgba(0, 0, 0, 0.1) 0px 0px 16px 0px')
+
+  console.log('-- title')
+  near('title h', m.title.h, 42, 1)
+  near('title font-size', m.titleType.size, 32)
+  eq('title weight', m.titleType.weight, '700')
+  eq('title colour', m.titleType.color, 'rgb(0, 0, 0)')
+  near('title y (from card top)', m.title.y - m.card.y, 44)
+  near('title centre x', cx(m.title), mid, 1)
+
+  console.log('-- body')
+  near('body w', m.body.w, 579)
+  near('body h', m.body.h, 188)
+  near('body y (from card top)', m.body.y - m.card.y, 122)
+  near('row w', m.row.w, 579)
+  near('row h', m.row.h, 48)
+  near('row->list gap', m.list.y - (m.row.y + m.row.h), 20)
+
+  console.log('-- link field')
+  near('link w', m.linkField.w, 435)
+  near('link h', m.linkField.h, 48)
+  near('link font-size', m.linkType.size, 16)
+  eq('link colour', m.linkType.color, 'rgb(153, 159, 165)')
+  eq('link bg', m.linkStyle.bg, 'rgb(240, 240, 243)')
+  eq('link border colour', m.linkStyle.borderColor, 'rgb(228, 231, 234)')
+  near('link radius', parseFloat(m.linkStyle.radius), 5)
+  near('link pad-x', parseFloat(m.linkStyle.padX), 16)
+  ok('link read-only', m.linkStyle.readOnly === true)
+  ok('link is the chrome web store URL', m.linkStyle.value.startsWith('https://chromewebstore.google.com/detail/aedi-v-ai-product-matchin/'))
+
+  console.log('-- copy button')
+  near('copy w', m.copy.w, 136)
+  near('copy h', m.copy.h, 48)
+  near('link->copy gap', m.copy.x - (m.linkField.x + m.linkField.w), 8)
+  near('copy font-size', m.copyType.size, 16)
+  eq('copy weight', m.copyType.weight, '500')
+  eq('copy colour', m.copyType.color, 'rgb(26, 26, 26)')
+  eq('copy bg', m.copyStyle.bg, 'rgb(255, 255, 255)')
+  eq('copy border colour', m.copyStyle.borderColor, 'rgb(26, 26, 26)')
+  near('copy border', parseFloat(m.copyStyle.border), 1)
+  near('copy radius', parseFloat(m.copyStyle.radius), 5)
+  near('copy pad-x', parseFloat(m.copyStyle.padX), 20)
+  near('copy icon box', m.copyIcon.w, 24)
+  // Row is bottom-aligned, so both children share a baseline edge.
+  near('row bottom alignment', m.copy.y + m.copy.h, m.linkField.y + m.linkField.h, 1)
+
+  console.log('-- list')
+  near('list w', m.list.w, 579)
+  near('list h', m.list.h, 120)
+  near('list font-size', m.listType.size, 16)
+  eq('list colour', m.listType.color, 'rgb(26, 26, 26)')
+  ok('4 bullets', m.listItems.length === 4, `${m.listItems.length}`)
+  m.listItems.forEach((li, i) => eq(`bullet ${i} indent`, li.marginLeft, '24px'))
+  // The last bullet is the only one that wraps — 5 lines x 24 = 120.
+  m.listItems.slice(0, 3).forEach((li, i) => near(`bullet ${i} h`, li.h, 24))
+  near('bullet 3 h (wraps to 2 lines)', m.listItems[3].h, 48)
+  ok('bold run on "20 creators"', m.listItems[0].text.includes('20 creators'))
+
+  console.log('-- page')
+  eq('page bg', m.pageBg, 'rgb(247, 248, 250)')
+}
+
+/** INCLUDES invariants after responsive reflow. */
+const includesResponsiveSpec = (m, vp) => {
+  const cx = (b) => b.x + b.w / 2
+  ok('no horizontal overflow', m.scrollW <= m.clientW, `${m.scrollW} <= ${m.clientW}`)
+  ok('card within viewport', m.card.x >= 0 && m.card.x + m.card.w <= vp.width)
+  near('card centre x', cx(m.card), vp.width / 2, 1)
+  ok('link field inside card', m.linkField.x >= m.card.x && m.linkField.x + m.linkField.w <= m.card.x + m.card.w)
+  ok('copy button inside card', m.copy.x >= m.card.x && m.copy.x + m.copy.w <= m.card.x + m.card.w)
+  ok('copy tap target >= 40px', m.copy.h >= 40, `${m.copy.h}px`)
+  ok('list type >= 14px', m.listType.size >= 14, `${m.listType.size}px`)
+  ok('4 bullets', m.listItems.length === 4)
   eq('page bg', m.pageBg, 'rgb(247, 248, 250)')
 }
 
@@ -349,6 +478,13 @@ const RUNS = [
   { route: '/', name: 'modal-390x844', width: 390, height: 844, submit: true, spec: modalResponsiveSpec },
   { route: '/', name: 'modal-320x568', width: 320, height: 568, submit: true, spec: modalResponsiveSpec },
   { route: '/', name: 'email-validation', width: 1440, height: 900, email: true, spec: () => {} },
+  { route: '/', name: 'flow-navigation', width: 1440, height: 900, flow: true, spec: includesSpec },
+  { route: '/includes', name: 'includes-1920x1080', width: 1920, height: 1080, spec: includesSpec },
+  { route: '/includes', name: 'includes-1440x900', width: 1440, height: 900, spec: includesSpec },
+  { route: '/includes', name: 'includes-768x1024', width: 768, height: 1024, spec: includesSpec },
+  { route: '/includes', name: 'includes-767x1024', width: 767, height: 1024, spec: includesResponsiveSpec },
+  { route: '/includes', name: 'includes-390x844', width: 390, height: 844, spec: includesResponsiveSpec },
+  { route: '/includes', name: 'includes-320x568', width: 320, height: 568, spec: includesResponsiveSpec },
   { route: '/qr', name: 'qr-1920x1080', width: 1920, height: 1080, spec: (m, vp) => qrSpec(m, vp, 1) },
   { route: '/qr', name: 'qr-390x844', width: 390, height: 844, spec: (m, vp) => qrSpec(m, vp, 0.85) },
 ]
@@ -373,38 +509,74 @@ const EMAIL_CASES = [
   ['a@@b.com', false],
 ]
 
+const modal = '[class*="modal"]'
+
+/** Submit the form with this email; resolve true if the dialog opened. */
+const trySave = async (page, email) => {
+  // Start from a fresh form each time — a successful save leaves the dialog
+  // up, and its scrim would swallow the next click. A hash-only goto does not
+  // reload the document, so React state survives it; reload explicitly.
+  await page.goto(`${BASE}/#/`)
+  await page.reload({ waitUntil: 'networkidle' })
+  await page.waitForSelector('#company')
+  await page.fill('#company', 'sjcompany')
+  await page.fill('#name', 'Leesujin')
+  await page.fill('#email', email)
+  await page.click('[class*="submit"]')
+  try {
+    await page.waitForSelector(modal, { timeout: 700 })
+    return true
+  } catch {
+    return false
+  }
+}
+
 const auditEmail = async (page) => {
-  const modal = '[class*="modal"]'
   for (const [value, shouldPass] of EMAIL_CASES) {
-    await page.fill('#company', 'sjcompany')
-    await page.fill('#name', 'Leesujin')
-    await page.fill('#email', value)
-    await page.click('[class*="submit"]')
-    await page.waitForTimeout(80)
-    const opened = (await page.locator(modal).count()) > 0
+    const opened = await trySave(page, value)
     ok(
-      `email ${JSON.stringify(value) || '""'} -> ${shouldPass ? 'accepted' : 'rejected'}`,
+      `email ${JSON.stringify(value)} -> ${shouldPass ? 'accepted' : 'rejected'}`,
       opened === shouldPass,
-      opened === shouldPass ? '' : `modal ${opened ? 'opened' : 'did not open'}`,
+      opened === shouldPass ? '' : `dialog ${opened ? 'opened' : 'did not open'}`,
     )
-    if (opened) {
-      await page.click('[class*="confirm"]')
-      await page.waitForTimeout(80)
-    }
   }
 
   // The custom message must not outlive the value that caused it.
-  await page.fill('#email', 'a@b')
-  await page.click('[class*="submit"]')
-  await page.waitForTimeout(80)
+  await trySave(page, 'a@b')
   await page.fill('#email', 'rnd@aisum.com')
   const cleared = await page.evaluate(() => document.querySelector('#email').validationMessage)
   ok('custom message cleared on edit', cleared === '', `"${cleared}"`)
   await page.click('[class*="submit"]')
   await page.waitForSelector(modal, { timeout: 3000 })
   ok('valid email after a rejected one still saves', true)
+}
+
+/** Save the form, dismiss the dialog, and land on the INCLUDES screen. */
+const auditFlow = async (page) => {
+  await page.fill('#company', 'sjcompany')
+  await page.fill('#name', 'Leesujin')
+  await page.fill('#email', 'rnd@aisum.com')
+  await page.click('[class*="submit"]')
+  await page.waitForSelector('[class*="modal"]', { timeout: 3000 })
+  ok('dialog opens on save', true)
+
   await page.click('[class*="confirm"]')
-  await page.waitForTimeout(80)
+  await page.waitForTimeout(250)
+  eq('route after OK', new URL(page.url()).hash, '#/includes')
+  ok('INCLUDES card rendered', (await page.locator('[class*="copy"]').count()) > 0)
+  ok('dialog dismissed', (await page.locator('[class*="modal"]').count()) === 0)
+  const overflow = await page.evaluate(() => document.body.style.overflow)
+  ok('body scroll restored across navigation', overflow !== 'hidden', `overflow="${overflow}"`)
+
+  // Copy link writes the invite URL and confirms.
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
+  await page.click('[class*="copy"]')
+  await page.waitForSelector('[class*="modal"]', { timeout: 3000 })
+  const clip = await page.evaluate(() => navigator.clipboard.readText())
+  ok('clipboard holds the invite URL', clip.startsWith('https://chromewebstore.google.com/detail/'), clip.slice(0, 48))
+  await page.click('[class*="confirm"]')
+  await page.waitForTimeout(150)
+  ok('copy dialog dismissed', (await page.locator('[class*="modal"]').count()) === 0)
 }
 
 /** Fill the form and save, asserting the dialog is gated on valid input. */
@@ -433,6 +605,7 @@ for (const run of RUNS) {
 
   console.log(`\n===== ${run.name} =====`)
   if (run.email) await auditEmail(page)
+  if (run.flow) await auditFlow(page)
   if (run.submit) await openModal(page)
 
   if (OUT) await page.screenshot({ path: `${OUT}/${run.name}.png`, fullPage: !run.submit })

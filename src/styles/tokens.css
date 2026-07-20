@@ -13,6 +13,10 @@
   --color-text-inverse: #ffffff;
   --color-icon-inverse: #ffffff;
   --color-btn-primary-fill: #1a1a1a;
+  --color-btn-secondary-fill: #ffffff;
+  --color-btn-secondary-border: #1a1a1a;
+  --color-text-primary: #1a1a1a;
+  --color-input-fill-disabled: #f0f0f3;
 
   /* typography */
   --typo-font-type: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI',
@@ -31,6 +35,7 @@
   --spacing-1: 4px;
   --spacing-2: 8px;
   --spacing-4: 16px;
+  --spacing-5: 20px;
   --spacing-6: 24px;
   --spacing-9: 36px;
   --spacing-11: 44px;

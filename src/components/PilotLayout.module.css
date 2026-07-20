@@ -1,0 +1,71 @@
+/* Shared chrome for the agency pilot screens.
+ *
+ * Both artboards (3910:20692 signup, 3910:20702 link-copy) place the logo at
+ * y=144 and the card at y=252 even though their cards are 634 and 390 tall.
+ * Identical y with different heights means the content is top-anchored, not
+ * vertically centred — so the logo holds still when moving between screens.
+ */
+
+.page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 144px 24px 48px;
+  background: var(--color-surface-primary-subtlest);
+}
+
+.logo {
+  display: flex;
+  align-items: flex-start; /* wordmark is top-aligned against the 60px symbol */
+  gap: 18px;
+  width: 259px;
+  height: 60px;
+}
+
+/* Both SVGs are exported with preserveAspectRatio="none" and no intrinsic
+   size, so width AND height must be pinned or they fall back to 300x150. */
+.logoSymbol {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-circle);
+  overflow: hidden;
+}
+
+.logoWordmark {
+  width: 181px;
+  height: 46.41px;
+}
+
+.slot {
+  margin-top: 48px; /* 252 - (144 + 60) */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .page {
+    padding: 48px 20px 32px;
+  }
+
+  .logo {
+    width: 207.2px;
+    height: 48px;
+    gap: 14.4px;
+  }
+
+  .logoSymbol {
+    width: 48px;
+    height: 48px;
+  }
+
+  .logoWordmark {
+    width: 144.8px;
+    height: 37.13px;
+  }
+
+  .slot {
+    margin-top: 36px;
+  }
+}

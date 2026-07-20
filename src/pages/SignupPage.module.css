@@ -1,59 +1,15 @@
 /* "가입하기" — AGENCY PILOT signup (Figma node 3910:20692, card 3910:20693)
  *
  * Measured on the 1920x1080 artboard:
- *   logo      x=831 y=144  259 x 60
  *   card      x=627 y=252  667 x 634   (padding 44/36, gap 36, radius 10, shadow-1)
  *   ├ title   x=219 y=44   229 x 42    (32px bold, 1.3)
  *   ├ fields  x=36  y=122  595 x 392   (4 x 80, gap 24)
  *   │  └ field           80            (label 24 + gap 8 + input 48)
  *   └ button  x=274.5 y=550 118 x 40   (radius 999)
- * Gap logo -> card = 48.
+ * The logo and the 48px gap above the card live in PilotLayout.
  */
 
-.page {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 24px;
-  background: var(--color-surface-primary-subtlest);
-}
-
-/* The group spans y 144..886, so its centre (515) sits 25px above the
-   artboard centre (540). Lifting it preserves the design's optical balance. */
-.group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  transform: translateY(-25px);
-}
-
-.logo {
-  display: flex;
-  align-items: flex-start; /* wordmark is top-aligned against the 60px symbol */
-  gap: 18px;
-  width: 259px;
-  height: 60px;
-}
-
-/* Both SVGs are exported with preserveAspectRatio="none" and no intrinsic
-   size, so width AND height must be pinned or they fall back to 300x150. */
-.logoSymbol {
-  width: 60px;
-  height: 60px;
-  border-radius: var(--radius-circle);
-  overflow: hidden;
-}
-
-.logoWordmark {
-  width: 181px;
-  height: 46.41px;
-}
-
 .card {
-  margin-top: 48px;
   width: 667px;
   display: flex;
   flex-direction: column;
@@ -148,33 +104,7 @@
  * the chrome tightens, but the 16px field type is held so mobile browsers
  * don't zoom on focus and the form stays legible.                          */
 @media (max-width: 767px) {
-  .page {
-    padding: 32px 20px;
-  }
-
-  .group {
-    transform: none;
-    justify-content: flex-start;
-  }
-
-  .logo {
-    width: 207.2px;
-    height: 48px;
-    gap: 14.4px;
-  }
-
-  .logoSymbol {
-    width: 48px;
-    height: 48px;
-  }
-
-  .logoWordmark {
-    width: 144.8px;
-    height: 37.13px;
-  }
-
   .card {
-    margin-top: 36px;
     width: 100%;
     max-width: 667px;
     gap: var(--spacing-6);
