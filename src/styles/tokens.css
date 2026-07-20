@@ -1,16 +1,49 @@
 /* Design tokens mirrored from the Figma variable collection
-   (file 9yvybIE3fvZjLzm0FrCqOO — "aedi-v 디자인"). */
+   (file 9yvybIE3fvZjLzm0FrCqOO — "aedi-v 디자인").
+   Values come from get_variable_defs, not from the fallbacks inlined in the
+   generated code — the two disagree (e.g. radius/xl is 10, not 20). */
 :root {
   /* color */
   --color-bg-base: #ffffff;
+  --color-surface-base: #ffffff;
   --color-surface-primary-subtlest: #f7f8fa;
+  --color-border-base: #e4e7ea;
   --color-text-base: #1a1a1a;
+  --color-text-disabled: #999fa5;
+  --color-text-inverse: #ffffff;
   --color-icon-inverse: #ffffff;
+  --color-btn-primary-fill: #1a1a1a;
 
   /* typography */
   --typo-font-type: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI',
     'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font-weight-regular: 400;
   --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --font-size-headline-xxxlarge: 32px;
   --font-size-body-xlarge: 18px;
+  --font-size-body-large: 16px;
+  --font-size-body-medium: 14px;
   --line-height-body: 1.5;
+  --line-height-headline: 1.3;
+
+  /* spacing */
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-4: 16px;
+  --spacing-6: 24px;
+  --spacing-9: 36px;
+  --spacing-11: 44px;
+
+  /* radius */
+  --radius-m: 5px;
+  --radius-xl: 10px;
+  --radius-circle: 999px;
+
+  /* size */
+  --height-40: 40px;
+  --height-48: 48px;
+
+  /* effect */
+  --shadow-1: 0 0 16px 0 rgba(0, 0, 0, 0.1);
 }
