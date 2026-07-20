@@ -1,0 +1,16 @@
+/* Design tokens mirrored from the Figma variable collection
+   (file 9yvybIE3fvZjLzm0FrCqOO — "aedi-v 디자인"). */
+:root {
+  /* color */
+  --color-bg-base: #ffffff;
+  --color-surface-primary-subtlest: #f7f8fa;
+  --color-text-base: #1a1a1a;
+  --color-icon-inverse: #ffffff;
+
+  /* typography */
+  --typo-font-type: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font-weight-medium: 500;
+  --font-size-body-xlarge: 18px;
+  --line-height-body: 1.5;
+}

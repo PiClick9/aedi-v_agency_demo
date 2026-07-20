@@ -1,0 +1,64 @@
+/* Slide 16:9 - 36 — QR entry screen (Figma node 3891:118010) */
+
+.page {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 74px;
+  padding: 48px 24px;
+  background: var(--color-surface-primary-subtlest);
+}
+
+.logo {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  height: 60px;
+}
+
+.logoSymbol {
+  height: 100%;
+  aspect-ratio: 1;
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.logoWordmark {
+  height: 100%;
+  width: auto;
+}
+
+/* The QR itself is intentionally omitted for the demo — this is the card that
+   frames it, kept at the Figma dimensions so the layout matches the design. */
+.qrCard {
+  display: flex;
+  align-items: center;
+  padding: 7.608px;
+  border-radius: 6.34px;
+  background: var(--color-bg-base);
+  box-shadow: 0 0 10.144px 0 rgba(0, 0, 0, 0.1);
+}
+
+.qrSlot {
+  width: 204.784px;
+  height: 204.784px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(26, 26, 26, 0.2);
+  border-radius: 4px;
+  color: rgba(26, 26, 26, 0.4);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.02em;
+}
+
+.notice {
+  margin: -30px 0 0;
+  text-align: center;
+  font-size: var(--font-size-body-xlarge);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-body);
+  color: var(--color-text-base);
+}
