@@ -132,6 +132,9 @@
 
 .strong {
   font-weight: var(--font-weight-bold);
+  /* Keep "20 creators" together so it wraps as a unit, not "20" then
+     "creators", on narrow (mobile) widths. */
+  white-space: nowrap;
 }
 
 @media (max-width: 767px) {
