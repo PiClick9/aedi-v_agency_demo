@@ -106,10 +106,11 @@
   place-items: center;
 }
 
-/* The vector sits inset 16.67% inside its 24px box — 16px, centred. */
+/* The link_copy icon (Figma I3910:20708) is drawn at 24 with its ~5.81% inset
+   baked into the SVG, so it fills the box. */
 .copyIcon > img {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
 }
 
 .list {
