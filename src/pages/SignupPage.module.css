@@ -99,6 +99,11 @@
   opacity: 0.88;
 }
 
+.submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 /* --- Responsive -------------------------------------------------------- *
  * The 667px card is fixed down to 768px wide. Below that it goes fluid and
  * the chrome tightens, but the 16px field type is held so mobile browsers

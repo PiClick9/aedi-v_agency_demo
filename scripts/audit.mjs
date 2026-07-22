@@ -272,12 +272,13 @@ const qrSpec = (m, vp, scale) => {
 }
 
 /**
- * Both pilot artboards put the logo at y=144 and the card at y=252 regardless
- * of card height, so the layout is top-anchored rather than centred.
+ * The pilot layout is top-anchored (logo, then a fixed gap to the card,
+ * regardless of card height). The logo sits at y=95 after commit f5a456d
+ * ("높이 수정") raised it from the artboard's 144; the 48px logo→card gap holds.
  */
 const layoutSpec = (m) => {
-  near('logo y', m.logo.y, 144)
-  near('card y', m.card.y, 252)
+  near('logo y', m.logo.y, 95)
+  near('card y', m.card.y, 203)
   near('logo w', m.logo.w, 259)
   near('logo h', m.logo.h, 60)
   near('symbol', m.symbol.w, 60)
@@ -595,12 +596,47 @@ const openModal = async (page) => {
   ok('modal opens on save', true)
 }
 
+// The form now posts to the registration API; mock it so submits succeed with
+// a chrome-web-store invite link (the real endpoint is CORS-blocked and creates
+// registrations). The returned link drives the INCLUDES screen.
+const ENDPOINT = 'https://global.aedi.ai/aediv/simple_registration'
+const DEMO_LINK =
+  'https://chromewebstore.google.com/detail/aedi-v-ai-product-matchin/bgfclceipgllbohhclicafhdcipbeogd?registCode=demo'
+const mockApi = (page) =>
+  page.route(ENDPOINT, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ status: 'S', msg: 'Success', u_idx: 7044, link: DEMO_LINK }),
+    }),
+  )
+
+// INCLUDES is reachable only through a successful registration now (a direct
+// visit redirects to the form), so drive the flow to get there.
+const gotoIncludes = async (page) => {
+  await page.waitForSelector('#company')
+  await page.fill('#company', 'sjcompany')
+  await page.fill('#name', 'Leesujin')
+  await page.fill('#email', 'rnd@aisum.com')
+  await page.click('[class*="submit"]')
+  await page.waitForSelector('[class*="modal"]', { timeout: 3000 })
+  await page.click('[class*="confirm"]')
+  await page.waitForSelector('[class*="copy"]', { timeout: 3000 })
+}
+
 const browser = await chromium.launch()
 
 for (const run of RUNS) {
   const page = await browser.newPage({ viewport: { width: run.width, height: run.height } })
-  await page.goto(`${BASE}/#${run.route}`, { waitUntil: 'networkidle' })
-  await page.evaluate(() => document.fonts.ready)
+  await mockApi(page)
+  if (run.route === '/includes') {
+    await page.goto(`${BASE}/#/`, { waitUntil: 'networkidle' })
+    await page.evaluate(() => document.fonts.ready)
+    await gotoIncludes(page)
+  } else {
+    await page.goto(`${BASE}/#${run.route}`, { waitUntil: 'networkidle' })
+    await page.evaluate(() => document.fonts.ready)
+  }
   await page.waitForTimeout(300)
 
   console.log(`\n===== ${run.name} =====`)

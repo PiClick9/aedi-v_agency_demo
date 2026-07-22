@@ -1,22 +1,27 @@
 import { useState } from 'react'
+import { Navigate, useLocation } from 'react-router-dom'
 import PilotLayout from '../components/PilotLayout'
 import SuccessModal from '../components/SuccessModal'
 import linkIcon from '../assets/icon-link.svg'
 import styles from './IncludesPage.module.css'
 
-const INVITE_URL =
-  'https://chromewebstore.google.com/detail/aedi-v-ai-product-matchin/bgfclceipgllbohhclicafhdcipbeogd?hl=en'
-
 /**
  * "링크 복사" — INCLUDES / invite link screen (Figma node 3910:20702).
- * Reached after the signup form saves.
+ * Reached after the signup form registers; the invite link comes from the API
+ * response via router state.
  */
 export default function IncludesPage() {
+  const location = useLocation()
+  const inviteUrl = (location.state as { link?: string } | null)?.link
   const [copied, setCopied] = useState(false)
+
+  // No link means a direct visit or a refresh (HashRouter drops state) — you
+  // can't have an invite link without registering, so send them to the form.
+  if (!inviteUrl) return <Navigate to="/" replace />
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(INVITE_URL)
+      await navigator.clipboard.writeText(inviteUrl)
     } catch {
       // Clipboard access needs a secure context and can be denied; the dialog
       // still confirms so the demo flow keeps moving.
@@ -31,7 +36,7 @@ export default function IncludesPage() {
 
         <div className={styles.body}>
           <div className={styles.row}>
-            <input className={styles.link} value={INVITE_URL} readOnly aria-label="Invite link" />
+            <input className={styles.link} value={inviteUrl} readOnly aria-label="Invite link" />
             <button className={styles.copy} type="button" onClick={handleCopy}>
               <span className={styles.copyIcon}>
                 <img src={linkIcon} alt="" />

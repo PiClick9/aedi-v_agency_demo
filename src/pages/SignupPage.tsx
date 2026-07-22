@@ -2,6 +2,7 @@ import { useRef, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PilotLayout from '../components/PilotLayout'
 import SuccessModal from '../components/SuccessModal'
+import { registerAgency } from '../api/registration'
 import styles from './SignupPage.module.css'
 
 // Position is optional — the design's filled state shows it empty with the
@@ -20,18 +21,23 @@ const FIELDS = [
  */
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)*\.[A-Za-z]{2,}$/
 
+// Which dialog, if any, is open after a submit attempt.
+type Dialog = { kind: 'success'; link: string } | { kind: 'error'; message: string } | null
+
 /**
  * "가입하기" — AGENCY PILOT signup form (Figma node 3910:20692).
- * The entry screen of the agency pilot flow. Saving opens the success dialog
- * (node 3910:22043), and dismissing it continues to the invite link screen.
+ * Submitting registers the agency via the API; on success the returned invite
+ * link is carried to the INCLUDES screen, on failure an error dialog shows.
  */
 export default function SignupPage() {
-  const [saved, setSaved] = useState(false)
+  const [dialog, setDialog] = useState<Dialog>(null)
+  const [submitting, setSubmitting] = useState(false)
   const emailRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (submitting) return
 
     // Native validation has already run and passed by this point, so this only
     // has to catch what `type="email"` lets through. The design has no error
@@ -43,7 +49,28 @@ export default function SignupPage() {
       return
     }
 
-    setSaved(true)
+    const form = new FormData(event.currentTarget)
+    const str = (key: string) => String(form.get(key) ?? '').trim()
+
+    setSubmitting(true)
+    try {
+      const { link } = await registerAgency({
+        bizName: str('company'),
+        name: str('name'),
+        email: str('email'),
+        position: str('position'),
+      })
+      setDialog({ kind: 'success', link })
+    } catch (err) {
+      setDialog({ kind: 'error', message: err instanceof Error ? err.message : 'Registration failed. Please try again.' })
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const closeDialog = () => {
+    if (dialog?.kind === 'success') navigate('/includes', { state: { link: dialog.link } })
+    else setDialog(null)
   }
 
   return (
@@ -74,12 +101,17 @@ export default function SignupPage() {
           ))}
         </div>
 
-        <button className={styles.submit} type="submit">
-          SAVE
+        <button className={styles.submit} type="submit" disabled={submitting}>
+          {submitting ? 'Saving…' : 'SAVE'}
         </button>
       </form>
 
-      {saved && <SuccessModal title="Saved successfully" onClose={() => navigate('/includes')} />}
+      {dialog && (
+        <SuccessModal
+          title={dialog.kind === 'success' ? 'Saved successfully' : dialog.message}
+          onClose={closeDialog}
+        />
+      )}
     </PilotLayout>
   )
 }
