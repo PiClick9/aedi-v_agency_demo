@@ -6,9 +6,16 @@ import { registerAgency } from '../api/registration'
 import styles from './SignupPage.module.css'
 
 // Position is optional — the design's filled state shows it empty with the
-// success dialog open.
+// success dialog open. Company Name carries a helper line below its input.
 const FIELDS = [
-  { id: 'company', label: 'Company Name', placeholder: 'Company Name', autoComplete: 'organization', required: true },
+  {
+    id: 'company',
+    label: 'Company Name',
+    placeholder: 'Company Name',
+    autoComplete: 'organization',
+    required: true,
+    description: 'For individuals, enter your personal name.',
+  },
   { id: 'name', label: 'Name', placeholder: 'Full Name', autoComplete: 'name', required: true },
   { id: 'email', label: 'Email', placeholder: 'Email Address', type: 'email', autoComplete: 'email', required: true },
   { id: 'position', label: 'Position', placeholder: 'Position', autoComplete: 'organization-title', required: false },
@@ -78,27 +85,49 @@ export default function SignupPage() {
       <form className={styles.card} onSubmit={handleSubmit}>
         <h1 className={styles.title}>AGENCY PILOT</h1>
 
-        <div className={styles.fields}>
-          {FIELDS.map((field) => (
-            <div className={styles.field} key={field.id}>
-              <label className={styles.label} htmlFor={field.id}>
-                {field.label}
-              </label>
-              <input
-                className={styles.input}
-                id={field.id}
-                name={field.id}
-                type={'type' in field ? field.type : 'text'}
-                placeholder={field.placeholder}
-                autoComplete={field.autoComplete}
-                required={field.required}
-                ref={field.id === 'email' ? emailRef : undefined}
-                // A custom message sticks until cleared, so drop it as soon
-                // as the field is edited.
-                onInput={(event) => event.currentTarget.setCustomValidity('')}
-              />
-            </div>
-          ))}
+        <div className={styles.formBody}>
+          <p className={styles.legend}>
+            <span className={styles.required}>*</span> Required
+          </p>
+
+          <div className={styles.fields}>
+            {FIELDS.map((field) => {
+              const description = 'description' in field ? field.description : undefined
+              return (
+                <div className={styles.field} key={field.id}>
+                  <label className={styles.label} htmlFor={field.id}>
+                    {field.label}
+                    {/* The `required` attribute already conveys this to AT, so the
+                        glyph is decorative. */}
+                    {field.required && (
+                      <span className={styles.required} aria-hidden="true">
+                        *
+                      </span>
+                    )}
+                  </label>
+                  <input
+                    className={styles.input}
+                    id={field.id}
+                    name={field.id}
+                    type={'type' in field ? field.type : 'text'}
+                    placeholder={field.placeholder}
+                    autoComplete={field.autoComplete}
+                    required={field.required}
+                    aria-describedby={description ? `${field.id}-description` : undefined}
+                    ref={field.id === 'email' ? emailRef : undefined}
+                    // A custom message sticks until cleared, so drop it as soon
+                    // as the field is edited.
+                    onInput={(event) => event.currentTarget.setCustomValidity('')}
+                  />
+                  {description && (
+                    <p className={styles.description} id={`${field.id}-description`}>
+                      {description}
+                    </p>
+                  )}
+                </div>
+              )
+            })}
+          </div>
         </div>
 
         <button className={styles.submit} type="submit" disabled={submitting}>

@@ -11,7 +11,7 @@ type Props = {
  * "완료" success dialog (Figma node 3910:22043, modal 3910:22086).
  * Shown once the AGENCY PILOT form saves.
  */
-export default function SuccessModal({ title, confirmLabel = 'OK', onClose }: Props) {
+export default function SuccessModal({ title, confirmLabel = 'Confirm', onClose }: Props) {
   const confirmRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {

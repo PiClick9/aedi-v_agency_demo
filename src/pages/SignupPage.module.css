@@ -1,11 +1,12 @@
 /* "가입하기" — AGENCY PILOT signup (Figma node 3910:20692, card 3910:20693)
  *
- * Measured on the 1920x1080 artboard:
- *   card      x=627 y=252  667 x 634   (padding 44/36, gap 36, radius 10, shadow-1)
- *   ├ title   x=219 y=44   229 x 42    (32px bold, 1.3)
- *   ├ fields  x=36  y=122  595 x 392   (4 x 80, gap 24)
- *   │  └ field           80            (label 24 + gap 8 + input 48)
- *   └ button  x=274.5 y=550 118 x 40   (radius 999)
+ * Card children (card gap 36, padding 44/36, radius 10, shadow-1):
+ *   ├ title     32px bold, 1.3
+ *   ├ formBody  gap 8
+ *   │  ├ legend   "* Required", right-aligned, info colour, 14px
+ *   │  └ fields   gap 24, each field = label 24 + gap 8 + input 48
+ *   │             (Company Name also has a description line under its input)
+ *   └ button    118 x 40 (radius 999)
  * The logo and the 48px gap above the card live in PilotLayout.
  */
 
@@ -31,6 +32,23 @@
   white-space: nowrap;
 }
 
+.formBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  width: 100%;
+}
+
+.legend {
+  margin: 0;
+  width: 100%;
+  font-size: var(--font-size-body-medium);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+  color: var(--color-text-info);
+  text-align: right;
+}
+
 .fields {
   display: flex;
   flex-direction: column;
@@ -50,6 +68,19 @@
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-body);
   color: var(--color-text-base);
+}
+
+/* Red asterisk shared by the legend and required-field labels. */
+.required {
+  color: var(--color-text-negative);
+}
+
+.description {
+  margin: 0;
+  font-size: var(--font-size-body-medium);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+  color: var(--color-text-info);
 }
 
 .input {

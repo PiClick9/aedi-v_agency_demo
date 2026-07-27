@@ -43,7 +43,9 @@
 }
 
 .confirm {
-  width: 82px;
+  /* Figma sized this at 82px for "OK"; a longer label ("Confirm") grows the
+     pill from its 16px side padding while 82px stays the floor. */
+  min-width: 82px;
   height: var(--height-40);
   display: flex;
   align-items: center;
