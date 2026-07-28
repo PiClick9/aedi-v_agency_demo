@@ -52,8 +52,7 @@ export default function IncludesPage() {
             <li>One month of access</li>
             <li>One hour of AI video analysis credits per creator</li>
             <li>
-              A free Agency Admin Dashboard for monitoring creator performance and estimated
-              affiliate revenue
+              A free Agency Admin Dashboard for monitoring creator usage and agency revenue
             </li>
           </ul>
         </div>
